@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Tabish queries</title>
+    <title>Tab Query</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
     <style>
@@ -72,6 +72,7 @@
             text-align: center;
             margin-top: 120px;
             margin-bottom: 70px;
+            position: relative;
         }
 
         h2 {
@@ -109,14 +110,13 @@
 
         .hidden { display: none; }
 
-        /* 🔥 FIX RUNAWAY WIDTH */
+        /* RUNAWAY FIX */
         #runawayBtn {
             width: auto !important;
             display: inline-block;
             padding: 10px 18px;
         }
 
-        /* IMAGE FIX */
         .corner-img {
             position: fixed;
             bottom: 120px;
@@ -146,20 +146,22 @@
     🟩 MAR: <span id="marScore">0</span>
 </div>
 
-<!-- IMAGES -->
 <img id="img1" class="corner-img" src="crying cat.jpg" alt="Crying cat">
 <img id="img2" class="corner-img hidden" src="final page image.jpg" alt="Final image">
+
+<audio id="quitSound" src="dragon-studio-correct-472358.mp3"></audio>
+<audio id="poopSound" src="apebble-fart-3-228243.mp3"></audio>
 
 <div class="card">
 
     <div id="q1">
         <h2>Tum Mil sakti ho? ⏳</h2>
         <button onclick="nextQ('q1','result2','tab')">OK mil lugi 😊</button>
-        <button onclick="nextQ('q1','q2','mar')">Nhi mil sakti 🤣</button>
+        <button onclick="nextQ('q1','q2','mar')">Nhi mil sakti 😒</button>
     </div>
 
     <div id="q2" class="hidden">
-        <h2>Mere se kuchh galti hui h to batao?☠️ </h2>
+        <h2>Mere se kuchh galat hua h to batao? ☠️</h2>
         <button onclick="nextQ('q2','result2','tab')">OK mil lugi 😊</button>
         <button onclick="nextQ('q2','q3','mar')">Huh tum itte imp nhi 😑</button>
     </div>
@@ -174,13 +176,13 @@
         <h2> Milogi ya haar maan lu 😢</h2>
 
         <button onclick="nextQ('q4','result2','tab')">OK mil lugi 😊</button>
-        <button id="runawayBtn">Nhi matlab nahi !!🤬🤬🤬🤬🤬</button>
+        <button id="runawayBtn">Nhi matlab nahi !!🤬🤬🤬🤬</button>
     </div>
 
     <div id="result2" class="hidden">
-        <h2>The right choice indeed-pls thoda loose ho jao 🫠</h2>
+        <h2>The right choice indeed- please thoda sa loose ho jao </h2>
 
-        <textarea id="commentBox" placeholder="Write your comment...(i'm looking forward for your response...)"></textarea>
+        <textarea id="commentBox" placeholder="Write your comment...(awaiting response)"></textarea>
         <button onclick="saveToFirebase()">Submit Comment</button>
 
         <button onclick="restart()">Restart</button>
@@ -189,7 +191,7 @@
 </div>
 
 <footer>
-    Created by: Tabish Apr_2026| Contact: tabish_747
+    Created by: Tabish Apr_2026 | Do reach out
 </footer>
 
 <script type="module">
@@ -202,7 +204,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyDUvpRE97b5IAizHzYQiH",
   authDomain: "therightchoice-747.firebaseapp.com",
   projectId: "therightchoice-747",
-  storageBucket: "therightchoice-747.firebasestorage.app",
+  storageBucket: "therightchoice-747.firebaseapp.com",
   messagingSenderId: "297324072389",
   appId: "1:297324072389:web:1e4f6264e7bdb72ada0fac"
 };
@@ -219,6 +221,7 @@ function updateScore() {
     document.getElementById("marScore").innerText = marScore;
 }
 
+/* NAVIGATION */
 window.nextQ = function(current, next, type) {
 
     document.getElementById(current).classList.add("hidden");
@@ -229,7 +232,6 @@ window.nextQ = function(current, next, type) {
 
     updateScore();
 
-    /* 🔥 FIX IMAGE SWITCH */
     const img1 = document.getElementById("img1");
     const img2 = document.getElementById("img2");
 
@@ -240,6 +242,8 @@ window.nextQ = function(current, next, type) {
         img1.style.display = "block";
         img2.style.display = "none";
     }
+
+    if (next === "q4") resetRunaway();
 };
 
 /* FIREBASE SAVE */
@@ -247,21 +251,15 @@ window.saveToFirebase = async function () {
 
     const comment = document.getElementById("commentBox").value;
 
-    try {
-        await addDoc(collection(db, "quizResponses"), {
-            tabScore,
-            marScore,
-            comment,
-            time: new Date().toISOString()
-        });
+    await addDoc(collection(db, "quizResponses"), {
+        tabScore,
+        marScore,
+        comment,
+        time: new Date().toISOString()
+    });
 
-        document.getElementById("commentBox").value = ""; // RESET
-        alert("Saved 🚀");
-
-    } catch (e) {
-        console.log(e);
-        alert("Error saving");
-    }
+    document.getElementById("commentBox").value = "";
+    alert("Saved 🚀");
 };
 
 /* RESTART */
@@ -275,9 +273,22 @@ window.restart = function () {
     document.getElementById("q1").classList.remove("hidden");
 
     document.getElementById("commentBox").value = "";
+
+    resetRunaway();
 };
 
-/* RUNAWAY FIX */
+/* 🔥 FINAL RUNAWAY FIX */
+function resetRunaway() {
+    const btn = document.getElementById("runawayBtn");
+    if (!btn) return;
+
+    btn.style.position = "static";
+    btn.style.left = "";
+    btn.style.top = "";
+    btn.style.zIndex = "";
+}
+
+/* RUNAWAY LOGIC */
 function initRunaway() {
     document.addEventListener("mouseover", (e) => {
         const btn = document.getElementById("runawayBtn");
