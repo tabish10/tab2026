@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quirky Quiz</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', cursive;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background-image: url("623090.jpg");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: linear-gradient(90deg, #000000cc, #ff4d6dcc);
+            color: white;
+            text-align: center;
+            padding: 14px;
+            font-weight: bold;
+            font-size: 20px;
+            z-index: 10;
+        }
+
+        footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(0,0,0,0.6);
+            color: white;
+            text-align: center;
+            padding: 10px;
+            font-size: 14px;
+            z-index: 10;
+        }
+
+        #scoreBoard {
+            position: fixed;
+            top: 65px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(255,255,255,0.92);
+            padding: 8px 15px;
+            border-radius: 15px;
+            font-weight: bold;
+            z-index: 20;
+        }
+
+        .card {
+            background: rgba(255,255,255,0.92);
+            padding: 18px;
+            border-radius: 20px;
+            width: 92%;
+            max-width: 360px;
+            text-align: center;
+            margin-top: 120px;
+            margin-bottom: 70px;
+        }
+
+        h2 {
+            color: #ff4d6d;
+            text-decoration: underline;
+            font-weight: 800;
+            background: rgba(255, 192, 203, 0.25);
+            padding: 10px;
+            border-radius: 12px;
+        }
+
+        button {
+            padding: 12px;
+            margin: 10px 0;
+            border: none;
+            border-radius: 18px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+            color: white;
+            font-size: 15px;
+        }
+
+        button:first-of-type {
+            background: linear-gradient(45deg, #00c853, #69f0ae);
+        }
+
+        button:nth-of-type(even) {
+            background: linear-gradient(45deg, #4d96ff, #6bcBef);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        .hidden { display: none; }
+
+        /* 🔥 FIX RUNAWAY WIDTH */
+        #runawayBtn {
+            width: auto !important;
+            display: inline-block;
+            padding: 10px 18px;
+        }
+
+        /* IMAGE FIX */
+        .corner-img {
+            position: fixed;
+            bottom: 120px;
+            right: 90px;
+            width: 120px;
+            height: 120px;
+            border-radius: 15px;
+            object-fit: cover;
+        }
+
+        textarea {
+            width: 95%;
+            height: 80px;
+            margin-top: 10px;
+            border-radius: 10px;
+            padding: 10px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header> Will She Make The Right Choice? 🤔</header>
+
+<div id="scoreBoard">
+    🟦 TAB: <span id="tabScore">0</span> |
+    🟩 MAR: <span id="marScore">0</span>
+</div>
+
+<!-- IMAGES -->
+<img id="img1" class="corner-img" src="crying cat.jpg" alt="Crying cat">
+<img id="img2" class="corner-img hidden" src="final page image.jpg" alt="Final image">
+
+<div class="card">
+
+    <div id="q1">
+        <h2>Tum Mil sakti ho? ⏳</h2>
+        <button onclick="nextQ('q1','result2','tab')">OK mil lugi 😊</button>
+        <button onclick="nextQ('q1','q2','mar')">Nhi mil sakti 🤣</button>
+    </div>
+
+    <div id="q2" class="hidden">
+        <h2>Mere se kuchh galti hui h to batao?☠️ </h2>
+        <button onclick="nextQ('q2','result2','tab')">OK mil lugi 😊</button>
+        <button onclick="nextQ('q2','q3','mar')">Huh tum itte imp nhi 😑</button>
+    </div>
+
+    <div id="q3" class="hidden">
+        <h2>Meri koi weird intention nhi h tmse🙄</h2>
+        <button onclick="nextQ('q3','result2','tab')">OK mil lugi 😊</button>
+        <button onclick="nextQ('q3','q4','mar')">Tum pure hi weird ho 🧠</button>
+    </div>
+
+    <div id="q4" class="hidden">
+        <h2> Milogi ya haar maan lu 😢</h2>
+
+        <button onclick="nextQ('q4','result2','tab')">OK mil lugi 😊</button>
+        <button id="runawayBtn">Nhi matlab nahi !!🤬🤬🤬🤬🤬</button>
+    </div>
+
+    <div id="result2" class="hidden">
+        <h2>The right choice indeed-pls thoda loose ho jao 🫠</h2>
+
+        <textarea id="commentBox" placeholder="Write your comment...(i'm looking forward for your response...)"></textarea>
+        <button onclick="saveToFirebase()">Submit Comment</button>
+
+        <button onclick="restart()">Restart</button>
+    </div>
+
+</div>
+
+<footer>
+    Created by: Tabish Apr_2026| Contact: tabish_747
+</footer>
+
+<script type="module">
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
+import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+
+/* FIREBASE */
+const firebaseConfig = {
+  apiKey: "AIzaSyDUvpRE97b5IAizHzYQiH",
+  authDomain: "therightchoice-747.firebaseapp.com",
+  projectId: "therightchoice-747",
+  storageBucket: "therightchoice-747.firebasestorage.app",
+  messagingSenderId: "297324072389",
+  appId: "1:297324072389:web:1e4f6264e7bdb72ada0fac"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+/* SCORE */
+let tabScore = 0;
+let marScore = 0;
+
+function updateScore() {
+    document.getElementById("tabScore").innerText = tabScore;
+    document.getElementById("marScore").innerText = marScore;
+}
+
+window.nextQ = function(current, next, type) {
+
+    document.getElementById(current).classList.add("hidden");
+    document.getElementById(next).classList.remove("hidden");
+
+    if (type === "tab") tabScore += 10;
+    if (type === "mar") marScore += 1;
+
+    updateScore();
+
+    /* 🔥 FIX IMAGE SWITCH */
+    const img1 = document.getElementById("img1");
+    const img2 = document.getElementById("img2");
+
+    if (next === "result2") {
+        img1.style.display = "none";
+        img2.style.display = "block";
+    } else {
+        img1.style.display = "block";
+        img2.style.display = "none";
+    }
+};
+
+/* FIREBASE SAVE */
+window.saveToFirebase = async function () {
+
+    const comment = document.getElementById("commentBox").value;
+
+    try {
+        await addDoc(collection(db, "quizResponses"), {
+            tabScore,
+            marScore,
+            comment,
+            time: new Date().toISOString()
+        });
+
+        document.getElementById("commentBox").value = ""; // RESET
+        alert("Saved 🚀");
+
+    } catch (e) {
+        console.log(e);
+        alert("Error saving");
+    }
+};
+
+/* RESTART */
+window.restart = function () {
+
+    tabScore = 0;
+    marScore = 0;
+    updateScore();
+
+    document.querySelectorAll(".card > div").forEach(d => d.classList.add("hidden"));
+    document.getElementById("q1").classList.remove("hidden");
+
+    document.getElementById("commentBox").value = "";
+};
+
+/* RUNAWAY FIX */
+function initRunaway() {
+    document.addEventListener("mouseover", (e) => {
+        const btn = document.getElementById("runawayBtn");
+        if (!btn || e.target !== btn) return;
+
+        const rect = btn.getBoundingClientRect();
+        const x = Math.random() * (window.innerWidth - rect.width);
+        const y = Math.random() * (window.innerHeight - rect.height);
+
+        btn.style.position = "fixed";
+        btn.style.left = x + "px";
+        btn.style.top = y + "px";
+        btn.style.zIndex = "9999";
+    });
+}
+
+window.addEventListener("load", initRunaway);
+
+</script>
+
+</body>
+</html>
